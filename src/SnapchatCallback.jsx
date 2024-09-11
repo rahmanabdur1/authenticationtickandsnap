@@ -14,20 +14,29 @@ export default function SnapchatCallback() {
           client_secret: 'wn4f1TVWdd88_Wxt51iNl6u5le5TCNkGoKObMcHgLKk',  // Replace with your Snapchat Client Secret
           code: code,
           grant_type: 'authorization_code',
-          redirect_uri: 'http://localhost:3000/auth/snapchat/callback',
+          redirect_uri: 'http://localhost:5173/auth/snapchat/callback',
         });
 
         const { access_token } = response.data;
 
-        // Save the access token to local storage or your state
+        const userInfoResponse = await axios.get('https://kit.snapchat.com/v1/me', {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        });
+
+        const user = userInfoResponse.data;
+
+        // Save user data (access_token, user info, etc.) to local storage or state
         localStorage.setItem('snapchat_access_token', access_token);
+        localStorage.setItem('snapchat_user', JSON.stringify(user));
 
         alert('Snapchat login successful!');
-        
-        // Redirect the user to the home page after successful login
-        navigate('/'); // Redirects to the home route ("/")
+
+        // Redirect to home page after successful login
+        navigate('/home');
       } catch (error) {
-        console.error('Error getting Snapchat access token:', error);
+        console.error('Error during Snapchat OAuth:', error);
         alert('Failed to log in with Snapchat.');
       }
     };
@@ -40,5 +49,5 @@ export default function SnapchatCallback() {
     }
   }, [location, navigate]);
 
-  return <div>Loading...</div>;
+  return <div>Logging you in...</div>;
 }
